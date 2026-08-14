@@ -5,7 +5,6 @@ from app.database import driver
 router = APIRouter(prefix="/api/sites", tags=["Sites"])
 
 
-# Get all sites
 @router.get("")
 def get_all_sites():
     query = """
@@ -48,7 +47,6 @@ def get_all_sites():
         )
 
 
-# Get one site
 @router.get("/{site_id}")
 def get_site(site_id: str):
     query = """
