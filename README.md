@@ -2,6 +2,8 @@
 
 **Live application:**
 
+https://support-graph.vercel.app/
+
 The frontend, backend, and CognoDB instance are connected in the hosted application.
 
 # SupportGraph
