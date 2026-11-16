@@ -1,16 +1,22 @@
-## Hosted Demo
-
-**Live application:**
-
-https://support-graph.vercel.app/
-
-The frontend, backend, and CognoDB instance are connected in the hosted application.
-
 # SupportGraph
 
-A graph-powered support investigation application built with **React, FastAPI, and CognoDB**.
+**A graph-powered support investigation app — React · FastAPI · CognoDB**
 
-SupportGraph helps support engineers investigate incidents by connecting tickets with customers, sites, infrastructure, applications, data files, resolutions, teams, and historical incidents.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-support--graph.vercel.app-9333ea?style=flat-square)](https://support-graph.vercel.app)
+[![React](https://img.shields.io/badge/React-JavaScript-61dafb?style=flat-square&logo=react&logoColor=white)](https://react.dev)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![CognoDB](https://img.shields.io/badge/CognoDB-graph_database-4b5563?style=flat-square)](https://cognodb.com)
+
+Investigating one support incident means assembling a single answer from tickets, sites,
+infrastructure, data files, resolutions and teams that usually live in separate screens.
+
+SupportGraph keeps those relationships in a graph, so an engineer starts at a ticket and walks
+outward through the connected operational context instead of searching record by record.
+
+![SupportGraph dashboard](docs/dashboard.png)
+
+**[Try the live demo →](https://support-graph.vercel.app)** — frontend, backend and CognoDB are all
+connected. Open any ticket and follow the investigation path.
 
 ## Use Case
 
