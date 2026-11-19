@@ -16,7 +16,7 @@ export default function StatusBanner() {
         </p>
 
         <p className="mt-0.5 text-xs text-slate-600">
-          Connected to CognoDB
+          Live API connected
         </p>
       </div>
 
