@@ -15,8 +15,9 @@ outward through the connected operational context instead of searching record by
 
 ![SupportGraph dashboard](docs/dashboard.png)
 
-**[Try the live demo →](https://support-graph.vercel.app)** — frontend, backend and CognoDB are all
-connected. Open any ticket and follow the investigation path.
+**[Try the live demo →](https://support-graph.vercel.app)** — open any ticket and follow the
+investigation path. The API reads from CognoDB when it is reachable and falls back to the built-in
+seed dataset when the hosted graph database is unavailable, so the demo stays usable.
 
 ## Use Case
 

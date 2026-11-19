@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.database import driver
+from app import fallback
 
 
 router = APIRouter(prefix="/api/tickets", tags=["Tickets"])
@@ -33,13 +34,10 @@ def get_all_tickets():
             return [dict(record) for record in result]
 
     except Exception as error:
-        print(f"Database error: {error}")
+        print(f"Database error: {error}. Serving built-in demo data.")
+        return fallback.tickets()
 
-        raise HTTPException(
-            status_code=503,
-            detail="Unable to connect to the support database"
-        )
-    
+
 @router.get("/{ticket_id}")
 def get_ticket(ticket_id: str):
     query = """
@@ -85,12 +83,17 @@ def get_ticket(ticket_id: str):
         raise
 
     except Exception as error:
-        print(f"Database error: {error}")
+        print(f"Database error: {error}. Serving built-in demo data.")
+        result = fallback.ticket(ticket_id)
 
-        raise HTTPException(
-            status_code=503,
-            detail="Unable to connect to the support database"
-        )
+        if not result:
+            raise HTTPException(
+                status_code=404,
+                detail="Ticket not found"
+            )
+
+        return result
+
 
 @router.get("/{ticket_id}/similar")
 def get_similar_tickets(ticket_id: str):
@@ -121,12 +124,9 @@ def get_similar_tickets(ticket_id: str):
             return [dict(record) for record in result]
 
     except Exception as error:
-        print(f"Database error: {error}")
+        print(f"Database error: {error}. Serving built-in demo data.")
+        return fallback.similar_tickets(ticket_id)
 
-        raise HTTPException(
-            status_code=503,
-            detail="Unable to connect to the support database"
-        )
 
 @router.get("/{ticket_id}/investigation")
 def get_ticket_investigation(ticket_id: str):
@@ -207,18 +207,31 @@ def get_ticket_investigation(ticket_id: str):
         }) AS similarTickets
     """
 
-    with driver.session() as session:
-        result = session.run(
-            query,
-            ticket_id=ticket_id
-        )
+    try:
+        with driver.session() as session:
+            result = session.run(
+                query,
+                ticket_id=ticket_id
+            )
 
-        record = result.single()
+            record = result.single()
 
-        if not record:
+            if not record:
+                return {
+                    "error": "Ticket not found",
+                    "ticketId": ticket_id
+                }
+
+            return record.data()
+
+    except Exception as error:
+        print(f"Database error: {error}. Serving built-in demo data.")
+        result = fallback.investigation(ticket_id)
+
+        if not result:
             return {
                 "error": "Ticket not found",
                 "ticketId": ticket_id
             }
 
-        return record.data()
+        return result

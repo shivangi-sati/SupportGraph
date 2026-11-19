@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.database import driver
+from app import fallback
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
@@ -53,18 +54,23 @@ def get_dashboard():
         commonIssues
     """
 
-    with driver.session() as session:
-        result = session.run(query)
-        record = result.single()
+    try:
+        with driver.session() as session:
+            result = session.run(query)
+            record = result.single()
 
-        if not record:
-            return {
-                "totalTickets": 0,
-                "openTickets": 0,
-                "resolvedTickets": 0,
-                "offlineSites": 0,
-                "filesNotGenerating": 0,
-                "commonIssues": []
-            }
+            if not record:
+                return {
+                    "totalTickets": 0,
+                    "openTickets": 0,
+                    "resolvedTickets": 0,
+                    "offlineSites": 0,
+                    "filesNotGenerating": 0,
+                    "commonIssues": []
+                }
 
-        return record.data()
+            return record.data()
+
+    except Exception as error:
+        print(f"Database error: {error}. Serving built-in demo data.")
+        return fallback.dashboard()

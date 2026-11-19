@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.database import driver
+from app import fallback
 
 
 router = APIRouter(prefix="/api/sites", tags=["Sites"])
@@ -39,12 +40,8 @@ def get_all_sites():
             return [dict(record) for record in result]
 
     except Exception as error:
-        print(f"Database error: {error}")
-
-        raise HTTPException(
-            status_code=503,
-            detail="Unable to connect to the support database"
-        )
+        print(f"Database error: {error}. Serving built-in demo data.")
+        return fallback.sites()
 
 
 @router.get("/{site_id}")
@@ -104,9 +101,13 @@ def get_site(site_id: str):
         raise
 
     except Exception as error:
-        print(f"Database error: {error}")
+        print(f"Database error: {error}. Serving built-in demo data.")
+        result = fallback.site(site_id)
 
-        raise HTTPException(
-            status_code=503,
-            detail="Unable to connect to the support database"
-        )
+        if not result:
+            raise HTTPException(
+                status_code=404,
+                detail="Site not found"
+            )
+
+        return result
