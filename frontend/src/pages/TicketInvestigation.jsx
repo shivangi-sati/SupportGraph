@@ -16,7 +16,8 @@ import {
   GitBranch,
 } from "lucide-react";
 
-import { getTicketInvestigation } from "../services/api";
+import { getDataSource, getTicketInvestigation } from "../services/api";
+import DemoDataNotice from "../components/DemoDataNotice";
 
 export default function TicketInvestigation() {
   const { ticketId } = useParams();
@@ -24,6 +25,7 @@ export default function TicketInvestigation() {
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usingDemoData, setUsingDemoData] = useState(false);
 
   useEffect(() => {
     const loadInvestigation = async () => {
@@ -39,6 +41,7 @@ export default function TicketInvestigation() {
         }
 
         setTicket(data);
+        setUsingDemoData(getDataSource() === "demo");
       } catch (err) {
         console.error(err);
         setError("Unable to load ticket investigation.");
@@ -104,6 +107,8 @@ export default function TicketInvestigation() {
         <ArrowLeft size={16} />
         Back to tickets
       </Link>
+
+      {usingDemoData && <DemoDataNotice />}
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">

@@ -10,13 +10,15 @@ import {
   Search,
 } from "lucide-react";
 
-import { getSites } from "../services/api";
+import { getDataSource, getSites } from "../services/api";
+import DemoDataNotice from "../components/DemoDataNotice";
 
 export default function Sites() {
   const [sites, setSites] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usingDemoData, setUsingDemoData] = useState(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -34,6 +36,7 @@ export default function Sites() {
       const data = await getSites();
 
       setSites(data);
+      setUsingDemoData(getDataSource() === "demo");
     } catch (error) {
       console.error("Failed to load sites:", error);
       setError("Unable to load sites.");
@@ -157,6 +160,8 @@ export default function Sites() {
           </div>
         </div>
       )}
+
+      {!loading && !error && usingDemoData && <DemoDataNotice />}
 
       {!loading && error && (
         <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-8 text-center">

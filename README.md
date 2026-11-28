@@ -17,7 +17,9 @@ outward through the connected operational context instead of searching record by
 
 **[Try the live demo →](https://support-graph.vercel.app)** — open any ticket and follow the
 investigation path. The API reads from CognoDB when it is reachable and falls back to the built-in
-seed dataset when the hosted graph database is unavailable, so the demo stays usable.
+seed dataset when the hosted graph database is unavailable. The frontend also retries slow requests
+and can fall back to a labelled sample dataset while a cold hosted API wakes up, so the demo stays
+usable.
 
 ## Use Case
 

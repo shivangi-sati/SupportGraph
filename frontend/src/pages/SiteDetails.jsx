@@ -12,7 +12,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-import { getSite } from "../services/api";
+import { getDataSource, getSite } from "../services/api";
+import DemoDataNotice from "../components/DemoDataNotice";
 
 export default function SiteDetails() {
   const { siteId } = useParams();
@@ -20,26 +21,38 @@ export default function SiteDetails() {
   const [site, setSite] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usingDemoData, setUsingDemoData] = useState(false);
 
   useEffect(() => {
-    loadSite();
+    let active = true;
+
+    getSite(siteId)
+      .then((data) => {
+        if (!active) {
+          return;
+        }
+
+        setSite(data);
+        setUsingDemoData(getDataSource() === "demo");
+      })
+      .catch((error) => {
+        if (!active) {
+          return;
+        }
+
+        console.error("Failed to load site:", error);
+        setError("Unable to load site information.");
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
   }, [siteId]);
-
-  async function loadSite() {
-    try {
-      setLoading(true);
-      setError("");
-
-      const data = await getSite(siteId);
-
-      setSite(data);
-    } catch (error) {
-      console.error("Failed to load site:", error);
-      setError("Unable to load site information.");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   if (loading) {
     return (
@@ -91,6 +104,8 @@ export default function SiteDetails() {
         <ArrowLeft size={16} />
         Back to sites
       </Link>
+
+      {usingDemoData && <DemoDataNotice />}
 
       <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
         <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">

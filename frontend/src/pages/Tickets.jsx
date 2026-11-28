@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search, Ticket, ArrowRight } from "lucide-react";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { getDataSource, getTickets } from "../services/api";
+import DemoDataNotice from "../components/DemoDataNotice";
 
 function Tickets() {
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [usingDemoData, setUsingDemoData] = useState(false);
 
   const [searchParams] = useSearchParams();
 
@@ -15,22 +17,29 @@ function Tickets() {
   const issueFilter = searchParams.get("issue");
 
   useEffect(() => {
-    fetch(`${API_URL}/api/tickets`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch tickets");
+    let active = true;
+
+    getTickets()
+      .then((data) => {
+        if (!active) {
+          return;
         }
 
-        return response.json();
-      })
-      .then((data) => {
         setTickets(data);
-        setLoading(false);
+        setUsingDemoData(getDataSource() === "demo");
       })
       .catch((error) => {
         console.error("Failed to fetch tickets:", error);
-        setLoading(false);
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
       });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const filteredTickets = tickets.filter((ticket) => {
@@ -119,6 +128,8 @@ function Tickets() {
           className="w-full bg-transparent px-3 py-4 text-sm text-white outline-none placeholder:text-slate-500"
         />
       </div>
+
+      {usingDemoData && <DemoDataNotice />}
 
       {(statusFilter || issueFilter) && (
         <div className="mb-6 flex flex-wrap items-center gap-2">

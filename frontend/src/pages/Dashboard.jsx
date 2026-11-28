@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-import { getDashboard } from "../services/api";
+import { getDashboard, getDataSource } from "../services/api";
 
 import StatCard from "../components/StatCard";
 import StatusBanner from "../components/StatusBanner";
@@ -37,25 +37,55 @@ export default function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [usingDemoData, setUsingDemoData] = useState(false);
+
+  const applyDashboard = useCallback((result) => {
+    setData(result);
+    setUsingDemoData(getDataSource() === "demo");
+  }, []);
+
+  const reportError = useCallback((error) => {
+    console.error("Dashboard error:", error);
+    setError("Unable to load dashboard data.");
+  }, []);
 
   const loadDashboard = async () => {
-    try {
-      setLoading(true);
-      setError("");
+    setLoading(true);
+    setError("");
 
-      const result = await getDashboard();
-      setData(result);
+    try {
+      applyDashboard(await getDashboard());
     } catch (error) {
-      console.error("Dashboard error:", error);
-      setError("Unable to load dashboard data.");
+      reportError(error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadDashboard();
-  }, []);
+    let active = true;
+
+    getDashboard()
+      .then((result) => {
+        if (active) {
+          applyDashboard(result);
+        }
+      })
+      .catch((error) => {
+        if (active) {
+          reportError(error);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [applyDashboard, reportError]);
 
   if (loading) {
     return (
@@ -103,7 +133,7 @@ export default function Dashboard() {
         </button>
       </header>
 
-      <StatusBanner />
+      <StatusBanner usingDemoData={usingDemoData} />
 
       <section>
         <SectionHeader
